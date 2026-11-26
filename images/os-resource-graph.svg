@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="460" viewBox="0 0 760 460">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M1 1L9 5L1 9" fill="none" stroke="#185FA5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="ared" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M1 1L9 5L1 9" fill="none" stroke="#A32D2D" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+  <rect width="760" height="460" fill="#ffffff"/>
+  <text x="380" y="30" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="17" font-weight="600" fill="#1a1a1a">进程资源图与化简</text>
+
+  <text x="195" y="62" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="14" font-weight="600" fill="#0C447C">初始状态</text>
+  <text x="565" y="62" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="14" font-weight="600" fill="#085041">化简后</text>
+
+  <rect x="35" y="80" width="320" height="280" rx="10" fill="#F7F7F5" stroke="#D3D1C7" stroke-width="1"/>
+  <rect x="405" y="80" width="320" height="280" rx="10" fill="#F7F7F5" stroke="#D3D1C7" stroke-width="1"/>
+
+  <circle cx="100" cy="150" r="24" fill="#E6F1FB" stroke="#185FA5" stroke-width="1.5"/>
+  <text x="100" y="156" text-anchor="middle" font-family="ui-monospace, Consolas, monospace" font-size="15" fill="#0C447C">P1</text>
+  <circle cx="100" cy="270" r="24" fill="#E6F1FB" stroke="#185FA5" stroke-width="1.5"/>
+  <text x="100" y="276" text-anchor="middle" font-family="ui-monospace, Consolas, monospace" font-size="15" fill="#0C447C">P2</text>
+
+  <rect x="255" y="126" width="66" height="48" rx="6" fill="#FAEEDA" stroke="#854F0B" stroke-width="1.5"/>
+  <text x="288" y="154" text-anchor="middle" font-family="ui-monospace, Consolas, monospace" font-size="14" fill="#633806">R1</text>
+  <circle cx="272" cy="140" r="5" fill="#BA7517"/>
+  <circle cx="288" cy="140" r="5" fill="#BA7517"/>
+
+  <rect x="255" y="246" width="66" height="48" rx="6" fill="#FAEEDA" stroke="#854F0B" stroke-width="1.5"/>
+  <text x="288" y="274" text-anchor="middle" font-family="ui-monospace, Consolas, monospace" font-size="14" fill="#633806">R2</text>
+  <circle cx="272" cy="260" r="5" fill="#BA7517"/>
+
+  <path d="M288 126 L120 145" fill="none" stroke="#185FA5" stroke-width="1.6" marker-end="url(#a)"/>
+  <path d="M124 271 L255 274" fill="none" stroke="#A32D2D" stroke-width="1.6" marker-end="url(#ared)"/>
+  <path d="M288 294 L120 282" fill="none" stroke="#185FA5" stroke-width="1.6" marker-end="url(#a)"/>
+
+  <text x="195" y="345" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="12" fill="#185FA5">R1 → P1：已分配 1 个 R1</text>
+  <text x="195" y="364" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="12" fill="#A32D2D">P2 → R2：P2 请求 1 个 R2（阻塞）</text>
+
+  <circle cx="470" cy="150" r="24" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="470" y="156" text-anchor="middle" font-family="ui-monospace, Consolas, monospace" font-size="15" fill="#085041">P1</text>
+  <circle cx="470" cy="270" r="24" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="470" y="276" text-anchor="middle" font-family="ui-monospace, Consolas, monospace" font-size="15" fill="#085041">P2</text>
+
+  <rect x="625" y="126" width="66" height="48" rx="6" fill="#F1EFE8" stroke="#888780" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="658" y="154" text-anchor="middle" font-family="ui-monospace, Consolas, monospace" font-size="14" fill="#444441">R1</text>
+  <rect x="625" y="246" width="66" height="48" rx="6" fill="#F1EFE8" stroke="#888780" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="658" y="274" text-anchor="middle" font-family="ui-monospace, Consolas, monospace" font-size="14" fill="#444441">R2</text>
+
+  <text x="565" y="345" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="12" fill="#0F6E56">所有进程与资源成为孤立点 → 无死锁</text>
+  <text x="565" y="364" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="12" fill="#5F5E5A">若剩有孤立点无法化简，则存在死锁</text>
+
+  <text x="380" y="392" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="13" fill="#1a1a1a">化简步骤：找非阻塞进程 → 去掉它所有边 → 回收其占用资源 → 重复</text>
+  <text x="380" y="420" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="12" fill="#5F5E5A">R 方框内圆球数 = 该类资源总数；R→P 表示已分配，P→R 表示请求</text>
+  <text x="380" y="446" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="12" fill="#5F5E5A">当图中所有进程都是阻塞节点时，即陷入死锁</text>
+</svg>

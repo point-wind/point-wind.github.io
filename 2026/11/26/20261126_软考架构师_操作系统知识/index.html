@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" integrity="sha256-4Lad8m4ZWW1Lgb9+sMVLYEfnIh7BjV1NQMEe79Pviks=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"xn--6qqv7i14ofosyrb.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.29.1","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="系统架构设计师操作系统知识点梳理：进程管理、存储管理、设备管理与文件管理，附典型真题与计算题解法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="软考架构师 Day01 - 操作系统知识">
+<meta property="og:url" content="https://你的用户名.github.io/2026/11/26/20261126_%E8%BD%AF%E8%80%83%E6%9E%B6%E6%9E%84%E5%B8%88_%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%9F%A5%E8%AF%86/index.html">
+<meta property="og:site_name" content="pointwind">
+<meta property="og:description" content="系统架构设计师操作系统知识点梳理：进程管理、存储管理、设备管理与文件管理，附典型真题与计算题解法。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://xn--6qqv7i14ofosyrb.github.io/images/os-process-states.svg">
+<meta property="og:image" content="https://xn--6qqv7i14ofosyrb.github.io/images/os-resource-graph.svg">
+<meta property="og:image" content="https://xn--6qqv7i14ofosyrb.github.io/images/os-pv-operation.svg">
+<meta property="og:image" content="https://xn--6qqv7i14ofosyrb.github.io/images/os-paging-address.svg">
+<meta property="article:published_time" content="2026-11-26T13:16:00.000Z">
+<meta property="article:modified_time" content="2026-11-26T13:16:00.000Z">
+<meta property="article:author" content="hbf">
+<meta property="article:tag" content="学习笔记">
+<meta property="article:tag" content="操作系统">
+<meta property="article:tag" content="系统架构设计师">
+<meta property="article:tag" content="软考">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://xn--6qqv7i14ofosyrb.github.io/images/os-process-states.svg">
+
+
+<link rel="canonical" href="https://你的用户名.github.io/2026/11/26/20261126_%E8%BD%AF%E8%80%83%E6%9E%B6%E6%9E%84%E5%B8%88_%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%9F%A5%E8%AF%86/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://你的用户名.github.io/2026/11/26/20261126_%E8%BD%AF%E8%80%83%E6%9E%B6%E6%9E%84%E5%B8%88_%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%9F%A5%E8%AF%86/","path":"2026/11/26/20261126_软考架构师_操作系统知识/","title":"软考架构师 Day01 - 操作系统知识"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>软考架构师 Day01 - 操作系统知识 | pointwind</title>
+  
+
+
+
+
+
+
+
+
+  
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-search popup-trigger" aria-label="搜索" role="button">
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">pointwind</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录、复盘、别再踩同一个坑</p>
+  </div>
+
+  <div class="site-nav-toggle" aria-label="切换导航栏" role="button">
+      <i class="fa fa-ellipsis fa-fw fa-lg"></i>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-categories"><a href="/categories" rel="section"><i class="fa fa-folder fa-fw"></i>分类</a></li><li class="menu-item menu-item-tags"><a href="/tags" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-about"><a href="/about" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BD%AF%E8%80%83%E6%9E%B6%E6%9E%84%E5%B8%88-Day01-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%9F%A5%E8%AF%86"><span class="nav-number">1.</span> <span class="nav-text">软考架构师 Day01 - 操作系统知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%BF%B0"><span class="nav-number">1.1.</span> <span class="nav-text">一、操作系统概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%AE%9A%E4%B9%89%E4%B8%8E%E4%BD%9C%E7%94%A8"><span class="nav-number">1.1.1.</span> <span class="nav-text">1. 定义与作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%9B%9B%E4%B8%AA%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="nav-number">1.1.2.</span> <span class="nav-text">2. 四个核心概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E4%BA%94%E5%A4%A7%E5%8A%9F%E8%83%BD"><span class="nav-number">1.1.3.</span> <span class="nav-text">3. 五大功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%88%86%E7%B1%BB"><span class="nav-number">1.1.4.</span> <span class="nav-text">4. 操作系统分类</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86"><span class="nav-number">1.2.</span> <span class="nav-text">二、进程管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%BF%9B%E7%A8%8B%E7%9A%84%E7%BB%84%E6%88%90%E4%B8%8E%E7%8A%B6%E6%80%81"><span class="nav-number">1.2.1.</span> <span class="nav-text">1. 进程的组成与状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%BF%9B%E7%A8%8B%E8%B5%84%E6%BA%90%E5%9B%BE"><span class="nav-number">1.2.2.</span> <span class="nav-text">2. 进程资源图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E8%BF%9B%E7%A8%8B%E5%90%8C%E6%AD%A5%E4%B8%8E%E4%BA%92%E6%96%A5"><span class="nav-number">1.2.3.</span> <span class="nav-text">3. 进程同步与互斥</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E7%BB%8F%E5%85%B8%E9%97%AE%E9%A2%98%EF%BC%9A%E7%94%9F%E4%BA%A7%E8%80%85%E4%B8%8E%E6%B6%88%E8%B4%B9%E8%80%85"><span class="nav-number">1.2.4.</span> <span class="nav-text">4. 经典问题：生产者与消费者</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E5%89%8D%E8%B6%8B%E5%9B%BE"><span class="nav-number">1.2.5.</span> <span class="nav-text">5. 前趋图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6"><span class="nav-number">1.2.6.</span> <span class="nav-text">6. 进程调度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-%E6%AD%BB%E9%94%81"><span class="nav-number">1.2.7.</span> <span class="nav-text">7. 死锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-%E7%BA%BF%E7%A8%8B"><span class="nav-number">1.2.8.</span> <span class="nav-text">8. 线程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-%E4%B8%AD%E6%96%AD"><span class="nav-number">1.2.9.</span> <span class="nav-text">9. 中断</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86"><span class="nav-number">1.3.</span> <span class="nav-text">三、存储管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%88%86%E5%8C%BA%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86"><span class="nav-number">1.3.1.</span> <span class="nav-text">1. 分区存储管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%88%86%E9%A1%B5%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86"><span class="nav-number">1.3.2.</span> <span class="nav-text">2. 分页存储管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95"><span class="nav-number">1.3.3.</span> <span class="nav-text">3. 页面置换算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%88%86%E6%AE%B5%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86"><span class="nav-number">1.3.4.</span> <span class="nav-text">4. 分段存储管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E6%AE%B5%E9%A1%B5%E5%BC%8F%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86"><span class="nav-number">1.3.5.</span> <span class="nav-text">5. 段页式存储管理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86"><span class="nav-number">1.4.</span> <span class="nav-text">四、设备管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%A6%82%E8%BF%B0"><span class="nav-number">1.4.1.</span> <span class="nav-text">1. 概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-I-O-%E8%BD%AF%E4%BB%B6%E5%B1%82%E6%AC%A1"><span class="nav-number">1.4.2.</span> <span class="nav-text">2. I&#x2F;O 软件层次</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-SPOOLING-%E6%8A%80%E6%9C%AF"><span class="nav-number">1.4.3.</span> <span class="nav-text">3. SPOOLING 技术</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-I-O-%E7%B3%BB%E7%BB%9F%E7%9A%84%E4%BA%94%E7%A7%8D%E5%B7%A5%E4%BD%9C%E6%96%B9%E5%BC%8F"><span class="nav-number">1.4.4.</span> <span class="nav-text">4. I&#x2F;O 系统的五种工作方式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86"><span class="nav-number">1.5.</span> <span class="nav-text">五、文件管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%B4%A2%E5%BC%95%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84"><span class="nav-number">1.5.1.</span> <span class="nav-text">1. 索引文件结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%96%87%E4%BB%B6%E7%9A%84%E5%AD%98%E5%8F%96%E6%96%B9%E6%B3%95"><span class="nav-number">1.5.2.</span> <span class="nav-text">2. 文件的存取方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E7%A9%BA%E9%97%B4%E7%AE%A1%E7%90%86"><span class="nav-number">1.5.3.</span> <span class="nav-text">3. 文件存储空间管理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E5%85%B8%E5%9E%8B%E7%9C%9F%E9%A2%98"><span class="nav-number">1.6.</span> <span class="nav-text">六、典型真题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E5%B0%8F%E7%BB%93"><span class="nav-number">1.7.</span> <span class="nav-text">七、小结</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">hbf</p>
+  <div class="site-description" itemprop="description">大数据 / AI / 读书 / 日记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives">
+          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://你的用户名.github.io/2026/11/26/20261126_%E8%BD%AF%E8%80%83%E6%9E%B6%E6%9E%84%E5%B8%88_%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%9F%A5%E8%AF%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="hbf">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="pointwind">
+      <meta itemprop="description" content="大数据 / AI / 读书 / 日记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="软考架构师 Day01 - 操作系统知识 | pointwind">
+      <meta itemprop="description" content="系统架构设计师操作系统知识点梳理：进程管理、存储管理、设备管理与文件管理，附典型真题与计算题解法。">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          软考架构师 Day01 - 操作系统知识
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-11-26 21:16:00" itemprop="dateCreated datePublished" datetime="2026-11-26T21:16:00+08:00">2026-11-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%BD%AF%E8%80%83%E5%A4%87%E8%80%83/" itemprop="url" rel="index"><span itemprop="name">软考备考</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">系统架构设计师操作系统知识点梳理：进程管理、存储管理、设备管理与文件管理，附典型真题与计算题解法。</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="软考架构师-Day01-操作系统知识"><a href="#软考架构师-Day01-操作系统知识" class="headerlink" title="软考架构师 Day01 - 操作系统知识"></a>软考架构师 Day01 - 操作系统知识</h1><blockquote>
+<p>学习日期：2026-11-26<br>专题：操作系统知识<br>说明：本节在软考架构设计师中稳定占 3～5 分。新版教材删减了部分内容，但考试仍会涉及旧版知识点，因此以教材为主、补充为辅。</p>
+</blockquote>
+<p>今天没有继续 Flink，转向软考高级架构师的备考。第一块是操作系统——内容多、概念密，但考点相对固定，适合用结构化笔记来记。</p>
+<hr>
+<h2 id="一、操作系统概述"><a href="#一、操作系统概述" class="headerlink" title="一、操作系统概述"></a>一、操作系统概述</h2><h3 id="1-定义与作用"><a href="#1-定义与作用" class="headerlink" title="1. 定义与作用"></a>1. 定义与作用</h3><p>操作系统是计算机系统的<strong>资源管理者</strong>，包含对软硬件资源实施管理的一组程序。它通过 CPU 管理、存储管理、设备管理和文件管理，对资源合理分配，改善共享与利用程度。</p>
+<p>操作系统通常由**内核（Kernel）**和大量配套软件组成：</p>
+<ul>
+<li>内核提供进程管理、存储管理、文件管理和设备管理等功能，是操作系统中最基本的部分</li>
+<li>配套软件包括图形界面、常用应用程序、实用程序（任务管理器、磁盘清理、杀毒软件）以及应用框架、编译器、程序库等</li>
+</ul>
+<p>三个核心作用：</p>
+<ol>
+<li>管理计算机中运行的程序，分配各种软硬件资源</li>
+<li>为用户提供友善的人机界面</li>
+<li>为应用程序的开发和运行提供高效率的平台</li>
+</ol>
+<p>此外还有辅助用户操作、处理软硬件错误、监控系统性能、保护系统安全等作用。</p>
+<h3 id="2-四个核心概念"><a href="#2-四个核心概念" class="headerlink" title="2. 四个核心概念"></a>2. 四个核心概念</h3><table>
+<thead>
+<tr>
+<th>概念</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>并发</strong></td>
+<td>一段时间内宏观上有多个程序同时运行，但单 CPU 环境下每个时刻只有一个程序在执行</td>
+</tr>
+<tr>
+<td><strong>共享</strong></td>
+<td>系统中的资源（硬件和信息资源）可被多个并发执行的进程共同使用，而非被一个进程独占</td>
+</tr>
+<tr>
+<td><strong>虚拟</strong></td>
+<td>把物理上的一个实体变成逻辑上的多个对应物，或把物理上的多个实体变成逻辑上的一个对应物</td>
+</tr>
+<tr>
+<td><strong>异步</strong></td>
+<td>多道程序环境下允许多个进程并发执行，但资源有限，进程执行”走走停停”，而非一贯到底</td>
+</tr>
+</tbody></table>
+<h3 id="3-五大功能"><a href="#3-五大功能" class="headerlink" title="3. 五大功能"></a>3. 五大功能</h3><ol>
+<li><strong>进程管理</strong>——对处理机的执行”时间”进行管理，包括进程控制、同步、通信和调度</li>
+<li><strong>文件管理</strong>——文件存储空间管理、目录管理、读&#x2F;写管理和存取控制</li>
+<li><strong>存储管理</strong>——对主存”空间”进行管理，包括分配与回收、存储保护、地址映射和主存扩充</li>
+<li><strong>设备管理</strong>——对硬件设备的管理，包括 I&#x2F;O 设备的分配、启动、完成和回收</li>
+<li><strong>作业管理</strong>——任务、界面管理、人机交互、图形界面、语音控制和虚拟现实</li>
+</ol>
+<h3 id="4-操作系统分类"><a href="#4-操作系统分类" class="headerlink" title="4. 操作系统分类"></a>4. 操作系统分类</h3><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>批处理</strong></td>
+<td>单道批处理与多道批处理，主机与外设可并行</td>
+</tr>
+<tr>
+<td><strong>分时</strong></td>
+<td>CPU 工作时间划分为很短的时间片，轮流为各终端用户服务</td>
+</tr>
+<tr>
+<td><strong>实时</strong></td>
+<td>对外来信息足够快地处理，在被控对象允许的时间范围内做出反应；对交互能力要求不高，但可靠性要求高</td>
+</tr>
+<tr>
+<td><strong>网络</strong></td>
+<td>联网计算机共享资源，提供电子邮件、文件传输、共享硬盘和打印机等服务。三种模式：集中模式、客户端&#x2F;服务器模式、对等模式</td>
+</tr>
+<tr>
+<td><strong>分布式</strong></td>
+<td>多台分散计算机连接而成，无主次之分，任意两台可通过通信交换信息；是网络操作系统的更高级形式</td>
+</tr>
+<tr>
+<td><strong>微型计算机</strong></td>
+<td>Windows、macOS、Linux</td>
+</tr>
+<tr>
+<td><strong>嵌入式</strong></td>
+<td>运行在嵌入式智能芯片环境中，统一协调、处理、指挥和控制芯片及所控制的部件装置</td>
+</tr>
+</tbody></table>
+<p>嵌入式操作系统的五个特点：</p>
+<ol>
+<li><strong>微型化</strong>——占用资源和系统代码量少（内存少、字长短、运行速度有限、能源少）</li>
+<li><strong>可定制</strong>——能运行在不同微处理器平台上，针对硬件变化配置结构与功能</li>
+<li><strong>实时性</strong>——常用于过程控制、数据采集、传输通信等多媒体信息及关键领域，对实时性要求高</li>
+<li><strong>可靠性</strong>——构件、模块和体系结构须达到应有可靠性，关键应用还要提供容错和防故障措施</li>
+<li><strong>易移植性</strong>——通常采用硬件抽象层（HAL）和板级支撑包（BSP）的底层设计技术</li>
+</ol>
+<p>嵌入式系统初始化顺序（自底向上、从硬件到软件）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">片级初始化 → 板级初始化 → 系统初始化</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="二、进程管理"><a href="#二、进程管理" class="headerlink" title="二、进程管理"></a>二、进程管理</h2><h3 id="1-进程的组成与状态"><a href="#1-进程的组成与状态" class="headerlink" title="1. 进程的组成与状态"></a>1. 进程的组成与状态</h3><p>进程由三部分组成：</p>
+<ul>
+<li><strong>进程控制块（PCB）</strong>——唯一标志</li>
+<li><strong>程序</strong>——描述进程要做什么</li>
+<li><strong>数据</strong>——存放进程执行时所需数据</li>
+</ul>
+<p>基础状态是三态图，需要熟练掌握三种状态之间的转换关系。</p>
+<p><img src="/images/os-process-states.svg" alt="进程三态及其转换"></p>
+<p>注意阻塞态不能直接回到运行态，必须先进就绪队列等待调度——这是选择题里常设的陷阱。</p>
+<h3 id="2-进程资源图"><a href="#2-进程资源图" class="headerlink" title="2. 进程资源图"></a>2. 进程资源图</h3><p>进程资源图用来表示进程和资源之间的分配与请求关系：</p>
+<ul>
+<li><code>P</code> 代表进程，<code>R</code> 代表资源，R 方框中的圆球数表示该类资源的数量</li>
+<li>R1 指向 P1：表示 R1 有一个资源已分配给 P1</li>
+<li>P1 指向 R2：表示 P1 还需要请求一个 R2 资源才能执行</li>
+</ul>
+<p><strong>阻塞节点</strong>：进程所请求的资源已全部分配完毕，无法获取所需资源，被阻塞无法继续。<br><strong>非阻塞节点</strong>：进程所请求的资源还有剩余，可以分配给该进程继续运行。</p>
+<p>当进程资源图中所有进程都是阻塞节点时，即陷入死锁状态。</p>
+<p><strong>化简方法</strong>：先看系统剩余多少未分配资源，找出非阻塞进程，去掉它的所有边形成孤立点，回收分配给它的资源；然后继续找下一个非阻塞进程，逐个变成孤立点。最终所有资源和进程都变成孤立点，图即化简完成。</p>
+<p><img src="/images/os-resource-graph.svg" alt="进程资源图与化简"></p>
+<h3 id="3-进程同步与互斥"><a href="#3-进程同步与互斥" class="headerlink" title="3. 进程同步与互斥"></a>3. 进程同步与互斥</h3><table>
+<thead>
+<tr>
+<th>概念</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>临界资源</strong></td>
+<td>各进程间需要以互斥方式访问的资源</td>
+</tr>
+<tr>
+<td><strong>临界区</strong></td>
+<td>进程中对临界资源实施操作的那段程序，本质是一段代码</td>
+</tr>
+<tr>
+<td><strong>互斥</strong></td>
+<td>某资源同一时间只能由一个任务单独使用，使用时加锁，用完解锁（如打印机）</td>
+</tr>
+<tr>
+<td><strong>同步</strong></td>
+<td>多个任务可以并发执行，但有速度差异，一定情况下停下等待（如自行车和汽车）</td>
+</tr>
+</tbody></table>
+<p>信号量：</p>
+<ul>
+<li><strong>互斥信号量</strong>——对临界资源采用互斥访问，使用后其他进程无法访问，<strong>初值为 1</strong></li>
+<li><strong>同步信号量</strong>——对共享资源的访问控制，<strong>初值一般是共享资源的数量</strong></li>
+</ul>
+<p><strong>P 操作（申请资源）</strong>：<code>S = S - 1</code></p>
+<ul>
+<li>若 <code>S &gt;= 0</code>，执行 P 操作的进程继续执行</li>
+<li>若 <code>S &lt; 0</code>，置该进程为阻塞状态（无可用资源），插入阻塞队列</li>
+</ul>
+<p><strong>V 操作（释放资源）</strong>：<code>S = S + 1</code></p>
+<ul>
+<li>若 <code>S &gt; 0</code>，执行 V 操作的进程继续执行</li>
+<li>若 <code>S &lt;= 0</code>，从阻塞状态唤醒一个进程，插入就绪队列，然后执行 V 操作的进程继续</li>
+</ul>
+<p><img src="/images/os-pv-operation.svg" alt="P&#x2F;V 操作流程"></p>
+<p><code>S &lt; 0</code> 时 <code>|S|</code> 就是等待队列里的进程数——这个结论常直接用来出计算题。</p>
+<h3 id="4-经典问题：生产者与消费者"><a href="#4-经典问题：生产者与消费者" class="headerlink" title="4. 经典问题：生产者与消费者"></a>4. 经典问题：生产者与消费者</h3><p>三个信号量：</p>
+<ul>
+<li><code>S0</code>：互斥信号量，仓库独立使用权</li>
+<li><code>S1</code>：同步信号量，仓库空闲个数</li>
+<li><code>S2</code>：同步信号量，仓库商品个数</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">生产者流程              消费者流程</span><br><span class="line">生产一个商品            P(S0)</span><br><span class="line">P(S0)                  P(S2)</span><br><span class="line">P(S1)                  取出一个商品</span><br><span class="line">将商品放入仓库中        V(S1)</span><br><span class="line">V(S2)                  V(S0)</span><br><span class="line">V(S0)</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-前趋图"><a href="#5-前趋图" class="headerlink" title="5. 前趋图"></a>5. 前趋图</h3><p>前趋图用来表示哪些任务可以并行执行、哪些任务之间有顺序关系。例如 A、B、C 可以并行执行，但必须三者都完成后才能执行 D——既确定了任务间的并行，也确定了先后顺序。用 PV 操作控制前趋图的进程同步是高频考点。</p>
+<h3 id="6-进程调度"><a href="#6-进程调度" class="headerlink" title="6. 进程调度"></a>6. 进程调度</h3><p><strong>调度方式</strong>：</p>
+<ul>
+<li><strong>可剥夺</strong>：更高优先级进程到来时，强行将正在运行进程的 CPU 分配给它</li>
+<li><strong>不可剥夺</strong>：高优先级进程必须等待当前进程自动释放 CPU</li>
+</ul>
+<p><strong>三级调度</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>级别</th>
+<th>别名</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>高级调度</strong></td>
+<td>长调度 &#x2F; 作业调度 &#x2F; 接纳调度</td>
+<td>决定输入池中哪个后备作业调入主系统，成为就绪进程。一个作业只需经过一次</td>
+</tr>
+<tr>
+<td><strong>中级调度</strong></td>
+<td>中程调度 &#x2F; 对换调度</td>
+<td>决定交换区中哪个就绪进程调入内存，直接参与 CPU 竞争</td>
+</tr>
+<tr>
+<td><strong>低级调度</strong></td>
+<td>短程调度 &#x2F; 进程调度</td>
+<td>决定内存中哪个就绪进程占用 CPU。最活跃、最重要，对系统影响很大</td>
+</tr>
+</tbody></table>
+<p><strong>调度算法</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>算法</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>先来先服务 FCFS</strong></td>
+<td>先到达的进程优先分配 CPU，用于宏观调度</td>
+</tr>
+<tr>
+<td><strong>时间片轮转 RR</strong></td>
+<td>分配给每个进程相同大小的 CPU 时间片，轮流使用，很公平，用于微观调度</td>
+</tr>
+<tr>
+<td><strong>优先级调度</strong></td>
+<td>每个进程拥有优先级，优先级大的先分配 CPU</td>
+</tr>
+<tr>
+<td><strong>多级反馈调度</strong></td>
+<td>时间片轮转与优先级结合。设置多个就绪队列 1、2、3…n，各队列优先级和时间片长度不同；新进程先进入队列 1 末尾，按 FCFS 执行时间片，未完成则转入队列 2 末尾，如此重复</td>
+</tr>
+</tbody></table>
+<h3 id="7-死锁"><a href="#7-死锁" class="headerlink" title="7. 死锁"></a>7. 死锁</h3><p><strong>定义</strong>：多个进程因竞争资源而造成的一种僵局，若无外力作用，这些进程都无法继续推进。</p>
+<p><strong>四个必要条件</strong>：</p>
+<ol>
+<li>资源互斥</li>
+<li>每个进程占有资源并等待其他资源</li>
+<li>系统不能剥夺进程资源</li>
+<li>进程资源图是一个环路</li>
+</ol>
+<p><strong>处理策略</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>死锁预防</strong></td>
+<td>采用策略限制并发进程对资源的请求，破坏四个条件之一，使系统任何时刻都不满足死锁条件</td>
+</tr>
+<tr>
+<td><strong>死锁避免</strong></td>
+<td>用<strong>银行家算法</strong>提前计算一条不会死锁的资源分配路径，否则不分配资源。相当于借贷：考虑对方还得起才借</td>
+</tr>
+<tr>
+<td><strong>死锁检测</strong></td>
+<td>允许死锁产生，系统定时运行检测程序，检测到后设法解除</td>
+</tr>
+<tr>
+<td><strong>死锁解除</strong></td>
+<td>强制剥夺资源、撤销进程等</td>
+</tr>
+</tbody></table>
+<p><strong>死锁资源计算</strong>（高频计算题）：</p>
+<p>系统内有 n 个进程，每个进程都需要 R 个资源：</p>
+<ul>
+<li>发生死锁的<strong>最大</strong>资源数：<code>n × (R - 1)</code></li>
+<li>不发生死锁的<strong>最小</strong>资源数：<code>n × (R - 1) + 1</code></li>
+</ul>
+<h3 id="8-线程"><a href="#8-线程" class="headerlink" title="8. 线程"></a>8. 线程</h3><p>传统进程有两个属性：可拥有资源的独立单位、可独立调度和分配的基本单位。</p>
+<p>引入线程的原因：进程在创建、撤销和切换中，系统需付出较大的时空开销，因此系统中进程数目不宜过多、切换频率不宜太高，限制了并发程度。引入线程后把两个属性分开——<strong>线程作为调度和分配的基本单位，进程作为独立分配资源的单位</strong>。</p>
+<p>线程是进程中的一个实体，基本上不拥有资源，只拥有运行中必不可少的资源（程序计数器、一组寄存器和栈）。它可与同属一个进程的其他线程共享进程拥有的全部资源（公共数据、全局变量、代码、文件），但不能共享线程独有的资源（如栈指针等标识数据）。</p>
+<h3 id="9-中断"><a href="#9-中断" class="headerlink" title="9. 中断"></a>9. 中断</h3><table>
+<thead>
+<tr>
+<th>概念</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>中断</strong></td>
+<td>由于某些事件出现，中止现行进程运行，由操作系统处理该事件，待适当时候让被中止进程继续运行</td>
+</tr>
+<tr>
+<td><strong>中断源</strong></td>
+<td>引起中断的事件</td>
+</tr>
+<tr>
+<td><strong>中断处理程序</strong></td>
+<td>对出现的事件进行处理的程序</td>
+</tr>
+<tr>
+<td><strong>中断响应</strong></td>
+<td>由硬件的中断装置暂停现行进程，让操作系统的中断处理程序占用处理器</td>
+</tr>
+</tbody></table>
+<p>中断分类：</p>
+<ol>
+<li><strong>程序性中断</strong>——程序执行中发现程序性质错误或出现特定状态，如浮点溢出、用户态使用特权指令、内存越界、跟踪</li>
+<li><strong>外中断</strong>——外部非通道式装置引起的中断，如时钟中断、操作员控制台中断、多处理机系统中 CPU 间通信中断</li>
+<li><strong>输入输出中断</strong>——外部设备或通道操作正常结束或发生错误，如打印完成、缺纸、驱动器中没有磁盘</li>
+<li><strong>硬件故障中断</strong>——机器发生故障，如电源故障、内存单元奇偶校验错</li>
+<li><strong>访管中断</strong>——对操作系统提出请求，如创建进程、I&#x2F;O 传输、打开文件、关闭文件、文件读写等系统调用</li>
+</ol>
+<hr>
+<h2 id="三、存储管理"><a href="#三、存储管理" class="headerlink" title="三、存储管理"></a>三、存储管理</h2><h3 id="1-分区存储管理"><a href="#1-分区存储管理" class="headerlink" title="1. 分区存储管理"></a>1. 分区存储管理</h3><table>
+<thead>
+<tr>
+<th>方式</th>
+<th>说明</th>
+<th>碎片</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>固定分区</strong></td>
+<td>静态分区，将主存分为若干固定分区，作业装配进去</td>
+<td>分区大小与作业需求不同，产生<strong>内部碎片</strong></td>
+</tr>
+<tr>
+<td><strong>可变分区</strong></td>
+<td>动态分区，作业转入时按需要大小划分</td>
+<td>不存在内部碎片，但整片主存被切割成许多块，产生<strong>外部碎片</strong></td>
+</tr>
+<tr>
+<td><strong>可重定位分区</strong></td>
+<td>移动所有已分配区域使其成为连续区域，把外部细小碎片合并成大分区</td>
+<td>只在外部作业请求空间得不到满足时进行</td>
+</tr>
+</tbody></table>
+<h3 id="2-分页存储管理"><a href="#2-分页存储管理" class="headerlink" title="2. 分页存储管理"></a>2. 分页存储管理</h3><p>逻辑页分为<strong>页号</strong>和<strong>页内地址</strong>，页内地址就是物理偏移地址。页号与物理块号并非按序对应，需要查询页表，找到页号对应的物理块号，再用物理块号加上页内地址才是真正运行时的物理地址。</p>
+<ul>
+<li><strong>优点</strong>：利用率高、碎片小、分配及管理简单</li>
+<li><strong>缺点</strong>：增加系统开销，可能产生抖动现象</li>
+</ul>
+<p><strong>地址转换计算</strong>：页面大小 4KB（即 <code>2^12</code>），逻辑地址 <code>1D16H</code> 的低 3 位十六进制 <code>D16H</code> 是页内偏移，高位 <code>1</code> 是页号。查页表得页号 1 对应物理块号 3，因此物理地址为 <code>3D16H</code>。</p>
+<p><img src="/images/os-paging-address.svg" alt="分页存储地址转换"></p>
+<h3 id="3-页面置换算法"><a href="#3-页面置换算法" class="headerlink" title="3. 页面置换算法"></a>3. 页面置换算法</h3><table>
+<thead>
+<tr>
+<th>算法</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>OPT</strong></td>
+<td>最优算法，理论上无法实现，在进程执行完后计算最佳效率，用来衡量其他算法</td>
+</tr>
+<tr>
+<td><strong>FIFO</strong></td>
+<td>先调入内存的页先被置换淘汰，会产生<strong>抖动现象</strong>——分配的页数越多，缺页率可能反而越高</td>
+</tr>
+<tr>
+<td><strong>LRU</strong></td>
+<td>最近最少使用，根据局部性原理效率高，不产生抖动。使用大量计数器，但比 LFU 少</td>
+</tr>
+<tr>
+<td><strong>LFU</strong></td>
+<td>最不经常使用，淘汰访问次数最少的页面</td>
+</tr>
+</tbody></table>
+<p>淘汰原则：优先淘汰最近未访问的，而后淘汰最近未被修改的页面。</p>
+<p><strong>快表</strong>：一块小容量的相联存储器，由快速存储器组成，按内容访问、速度快，可从硬件上保证按内容并行查找，一般存放当前访问最频繁的少数活动页面的页号。</p>
+<ul>
+<li>快表 &#x3D; 页表存于 Cache 中</li>
+<li>慢表 &#x3D; 页表存于内存上</li>
+<li>慢表需访问两次内存才能取出页，快表只需访问一次 Cache 和一次内存，因此更快</li>
+</ul>
+<h3 id="4-分段存储管理"><a href="#4-分段存储管理" class="headerlink" title="4. 分段存储管理"></a>4. 分段存储管理</h3><p>将进程空间分为一个个段，每段有段号和段内地址。与页式存储不同，<strong>每段物理大小不同</strong>，分段是根据逻辑整体划分的。</p>
+<p>段表与页表内容也不同：页表直接是逻辑页号对应物理块号；段表有<strong>段长</strong>和<strong>基址</strong>两个属性，才能确定一个逻辑段在物理段中的位置。</p>
+<p><strong>段式地址越界判断</strong>：逻辑地址 <code>(段号, 段内偏移)</code> 中的偏移必须小于该段的段长，否则无法转换。</p>
+<h3 id="5-段页式存储管理"><a href="#5-段页式存储管理" class="headerlink" title="5. 段页式存储管理"></a>5. 段页式存储管理</h3><p>对进程空间<strong>先分段、后分页</strong>。</p>
+<ul>
+<li><strong>优点</strong>：空间浪费小、存储共享容易、存储保护容易、能动态链接</li>
+<li><strong>缺点</strong>：管理软件增加，复杂性和开销随之增加，需要的硬件和占用内容也有所增加，执行速度大大下降</li>
+</ul>
+<hr>
+<h2 id="四、设备管理"><a href="#四、设备管理" class="headerlink" title="四、设备管理"></a>四、设备管理</h2><h3 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h3><p>设备是计算机系统与外界交互的工具，负责计算机与外部的输入&#x2F;输出工作，常称为外部设备（外设）。负责管理设备和输入&#x2F;输出的机构称为 I&#x2F;O 系统。</p>
+<p>I&#x2F;O 系统由<strong>设备、控制器、通道（具有通道的计算机系统）、总线和 I&#x2F;O 软件</strong>组成。</p>
+<p>设备分类：</p>
+<ul>
+<li>按数据组织：块设备、字符设备</li>
+<li>按功能：输入设备、输出设备、存储设备、网络联网设备、供电设备</li>
+<li>按资源分配：独占设备、共享设备、虚拟设备</li>
+<li>按数据传输速率：低速设备、中速设备、高速设备</li>
+</ul>
+<p>设备管理的主要功能：动态掌握并记录设备状态、设备分配和释放、缓冲区管理、实现物理 I&#x2F;O 设备的操作、提供设备使用的用户接口及设备的访问和控制。</p>
+<h3 id="2-I-O-软件层次"><a href="#2-I-O-软件层次" class="headerlink" title="2. I&#x2F;O 软件层次"></a>2. I&#x2F;O 软件层次</h3><p>以用户程序读硬盘文件为例：</p>
+<ol>
+<li>与设备无关软件检查高速缓存中有无要读的数据块，没有则调用设备驱动程序</li>
+<li>设备驱动程序向 I&#x2F;O 硬件发出请求</li>
+<li>用户进程阻塞，等待磁盘操作完成</li>
+<li>磁盘操作完成，硬件产生中断，转入中断处理程序</li>
+<li>中断处理程序检查原因，唤醒用户进程取回数据，结束此次 I&#x2F;O 请求</li>
+</ol>
+<h3 id="3-SPOOLING-技术"><a href="#3-SPOOLING-技术" class="headerlink" title="3. SPOOLING 技术"></a>3. SPOOLING 技术</h3><p>一台独占设备同一时间只能由一个进程使用，其他进程只能等待，且不知道什么时候空闲，极大浪费外设工作效率。</p>
+<p><strong>SPOOLING（外围设备联机操作）</strong>：在外设上建立两个数据缓冲区——输入井和输出井。无论多少进程都可以共用这一台打印机，只需将打印命令发出，数据排队存储在缓冲区中，打印机自动按顺序打印。实现了物理外设的共享，让每个进程都感觉在使用一台打印机，即<strong>物理设备的虚拟化</strong>。</p>
+<h3 id="4-I-O-系统的五种工作方式"><a href="#4-I-O-系统的五种工作方式" class="headerlink" title="4. I&#x2F;O 系统的五种工作方式"></a>4. I&#x2F;O 系统的五种工作方式</h3><table>
+<thead>
+<tr>
+<th>方式</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>程序控制方式</strong></td>
+<td>CPU 执行一段 I&#x2F;O 程序实现主机与外设间数据传送。分无条件传送（端口总是就绪，CPU 无须查询）和程序查询方式（CPU 循环查询外设状态，未就绪则等待）</td>
+</tr>
+<tr>
+<td><strong>程序中断方式</strong></td>
+<td>引入中断以提高 I&#x2F;O 能力和 CPU 效率。分五个阶段：中断请求、中断判优、中断响应、中断处理、中断返回。CPU 无须等待也不必查询状态</td>
+</tr>
+<tr>
+<td><strong>DMA 方式</strong></td>
+<td>在主存与外设间实现高速、批量数据交换，使用 DMA 控制器（DMAC）控制和管理数据传输。DMAC 与 CPU 共享系统总线，具有独立访问存储器的能力</td>
+</tr>
+<tr>
+<td><strong>通道方式</strong></td>
+<td>高级 I&#x2F;O 控制部件，在硬件基础上利用软件手段实现对 I&#x2F;O 的控制和传送，更多地免去 CPU 介入，提高主机与外设的并行程度</td>
+</tr>
+<tr>
+<td><strong>I&#x2F;O 处理机</strong></td>
+<td>也称外围处理机，具有丰富的指令系统和完善的中断系统，专用于大型高效计算机系统处理外围设备的 I&#x2F;O</td>
+</tr>
+</tbody></table>
+<p>通道按传送方式分三类：</p>
+<ul>
+<li><strong>字节多路通道</strong>——简单的共享通道，连接与管理多台低速设备</li>
+<li><strong>选择通道</strong>——又称高速通道，可物理连接多个设备，但一段时间内只能选择一台设备传送数据，该设备独占整个通道</li>
+<li><strong>数组多路通道</strong>——结合字节多路通道和选择通道的特点，有多个子通道，既像字节多路通道那样分时共享总通道，又能像选择通道那样成组传送数据</li>
+</ul>
+<hr>
+<h2 id="五、文件管理"><a href="#五、文件管理" class="headerlink" title="五、文件管理"></a>五、文件管理</h2><h3 id="1-索引文件结构"><a href="#1-索引文件结构" class="headerlink" title="1. 索引文件结构"></a>1. 索引文件结构</h3><p>索引节点分为直接索引和间接索引：</p>
+<ul>
+<li><strong>直接索引</strong>：索引节点直接存放数据块内容</li>
+<li><strong>一级间接索引</strong>：直接盘存放一级地址，一级地址再指向数据块</li>
+<li><strong>二级间接索引</strong>：直接盘存一级地址，一级地址指向二级地址表，二级地址再指向数据块</li>
+</ul>
+<p>以物理盘块 4KB 为例：</p>
+<ul>
+<li>一个地址项 4 字节，每个索引块可存 <code>4096 / 4 = 1024</code> 个地址</li>
+<li>一级间接可表示 <code>1024 × 4KB = 4096KB</code> 数据</li>
+<li>二级间接可表示 <code>1024 × 1024 × 4KB</code> 数据</li>
+</ul>
+<h3 id="2-文件的存取方法"><a href="#2-文件的存取方法" class="headerlink" title="2. 文件的存取方法"></a>2. 文件的存取方法</h3><ul>
+<li><strong>顺序存取</strong>——对文件中的信息按顺序依次读&#x2F;写</li>
+<li><strong>随机存取</strong>——可以按任意次序随机读&#x2F;写</li>
+</ul>
+<h3 id="3-文件存储空间管理"><a href="#3-文件存储空间管理" class="headerlink" title="3. 文件存储空间管理"></a>3. 文件存储空间管理</h3><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>空闲区表</strong></td>
+<td>将外存上连续的未分配区域称为”空闲区”，为所有空闲区建立一张表，每个表项对应一个空闲区。适用于连续文件结构</td>
+</tr>
+<tr>
+<td><strong>位示图</strong></td>
+<td>在外存上建立一张 Bitmap，每一位对应一个物理块，0 和 1 分别表示空闲和占用</td>
+</tr>
+<tr>
+<td><strong>空闲块链</strong></td>
+<td>每个空闲物理块中有指向下一个空闲块的指针，所有空闲块构成链表，头指针放在特定位置（如管理块中）。不需要磁盘分配表，节省空间</td>
+</tr>
+<tr>
+<td><strong>成组链接法</strong></td>
+<td>将空闲块分成若干组，每 100 个为一组，每组第一个空闲块登记下一组的物理盘块号和空闲块总数。若某组第一个空闲块号为 0，表示这是最后一组</td>
+</tr>
+</tbody></table>
+<p><strong>位示图大小计算</strong>：每页 4KB，总容量 16GB，则物理块数为 <code>16GB / 4KB = 4M</code> 块，每块用 1 bit 表示，位示图大小为 <code>4M bit = 512KB</code>。</p>
+<hr>
+<h2 id="六、典型真题"><a href="#六、典型真题" class="headerlink" title="六、典型真题"></a>六、典型真题</h2><p><strong>1. 进程状态转换</strong></p>
+<p>进程从运行状态变成就绪状态的条件是（　）。<br>A. 主动让出 CPU　B. 信号量执行 wait() 方法　C. 缺页中断　D. 请求磁盘</p>
+<p>答案：<strong>A</strong>。主动让出 CPU（如时间片用完）使进程从运行态回到就绪态；请求磁盘或 wait() 会进入阻塞态。</p>
+<p><strong>2. 死锁预防</strong></p>
+<p>以下（　）不属于操作系统死锁预防的办法。<br>A. 破坏请求和保持　B. 破坏互斥　C. 破坏不可抢占　D. 破坏循环等待</p>
+<p>答案：<strong>B</strong>。死锁的四个必要条件中，资源互斥本身无法破坏，预防措施针对其余三个条件。</p>
+<p><strong>3. 非抢占式调度时间计算</strong></p>
+<p>单 CPU 系统中有两个任务 P1、P2。P1 依次执行 40ms 计算、60ms I&#x2F;O、40ms 计算；P2 依次执行 100ms 计算、40ms I&#x2F;O、40ms 计算。P2 晚启动 20ms，采用非抢占式调度，执行完两个任务的总时间是（　）ms。<br>A. 200　B. 220　C. 240　D. 260</p>
+<p>答案：<strong>B（220ms）</strong>。</p>
+<p>时间线：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">0-40    P1 计算</span><br><span class="line">40-100  P1 I/O，CPU 空闲，P2 从 40 开始执行（虽 20ms 已启动，但 CPU 被占）</span><br><span class="line">100-140 P2 继续计算（P1 I/O 完成，进入就绪，非抢占不能打断）</span><br><span class="line">140-180 P2 I/O，P1 运行计算 40ms</span><br><span class="line">180-220 P2 运行最后 40ms 计算</span><br></pre></td></tr></table></figure>
+
+<p><strong>4. 段式地址越界</strong></p>
+<p>某进程段表如下，逻辑地址（　）可以转换。<br>A. (0, 1597)、(1, 30)、(3, 1390)<br>B. (0, 128)、(1, 30)、(3, 1390)<br>C. (0, 1597)、(2, 98)、(3, 1390)<br>D. (0, 128)、(2, 98)、(4, 1066)</p>
+<p>答案：<strong>B</strong>。0 段段长只有 600，1597 越界；4 段段长只有 960，1066 越界。含这两者的选项都排除。</p>
+<p><strong>5. 索引节点与文件大小</strong></p>
+<p>文件索引节点有 8 个地址项，每项 4 字节，其中 5 个直接地址索引、2 个一级间接、1 个二级间接，磁盘索引块和数据块大小均为 1KB。访问逻辑块号 5 和 518 分别采用（27），单个文件最大长度是（28）KB。<br>（27）A. 直接和一级　B. 直接和二级　C. 一级和二级　D. 一级和一级<br>（28）A. 517　B. 1029　C. 16513　D. 66053</p>
+<p>答案：<strong>C、D</strong>。</p>
+<ul>
+<li>直接地址覆盖 0～4；5 落在第一个一级间接范围（5～260），518 落在二级间接范围（518 &gt; 5 + 2×256 &#x3D; 517）</li>
+<li>最大块数 &#x3D; <code>5 + 2×256 + 256×256 = 66053</code> 块，每块 1KB，即 66053KB</li>
+</ul>
+<hr>
+<h2 id="七、小结"><a href="#七、小结" class="headerlink" title="七、小结"></a>七、小结</h2><ol>
+<li><strong>操作系统概述</strong>——四个核心概念（并发、共享、虚拟、异步）、五大功能、七类操作系统，嵌入式部分重点记 HAL&#x2F;BSP 和初始化顺序</li>
+<li><strong>进程管理</strong>——本章分值最集中。三态转换、PV 操作、生产者消费者、三级调度、四种调度算法、死锁四条件与资源计算、线程与中断</li>
+<li><strong>存储管理</strong>——分页地址转换、三种分区方式的碎片类型、页面置换算法（重点 FIFO 抖动与快表原理）、段式与段页式区别</li>
+<li><strong>设备管理</strong>——SPOOLING 实现虚拟设备、五种 I&#x2F;O 方式（程序控制、中断、DMA、通道、I&#x2F;O 处理机）</li>
+<li><strong>文件管理</strong>——索引结构计算、位示图容量计算、四种空闲空间管理方法</li>
+</ol>
+<p>计算题是这部分的主要得分点：死锁资源数、页式地址转换、段式越界判断、位示图大小、索引文件最大长度——公式都不复杂，练两遍就能稳拿。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%BD%AF%E8%80%83/" rel="tag"># 软考</a>
+              <a href="/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%B8%88/" rel="tag"># 系统架构设计师</a>
+              <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag"># 操作系统</a>
+              <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag"># 学习笔记</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/11/25/20261125_Flink_Day01%E5%AE%89%E8%A3%85%E4%B8%8E%E5%85%A5%E9%97%A8/" rel="prev" title="Day01 - Flink 安装与入门">
+                  <i class="fa fa-angle-left"></i> Day01 - Flink 安装与入门
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">hbf</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

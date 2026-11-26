@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="330" viewBox="0 0 760 330">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M1 1L9 5L1 9" fill="none" stroke="#185FA5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+  <rect width="760" height="330" fill="#ffffff"/>
+  <text x="380" y="30" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="17" font-weight="600" fill="#1a1a1a">进程三态及其转换</text>
+
+  <rect x="60" y="120" width="150" height="62" rx="10" fill="#E6F1FB" stroke="#185FA5" stroke-width="1.5"/>
+  <text x="135" y="145" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="16" font-weight="600" fill="#0C447C">就绪</text>
+  <text x="135" y="166" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="12" fill="#185FA5">Ready</text>
+
+  <rect x="305" y="120" width="150" height="62" rx="10" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1.5"/>
+  <text x="380" y="145" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="16" font-weight="600" fill="#085041">运行</text>
+  <text x="380" y="166" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="12" fill="#0F6E56">Running</text>
+
+  <rect x="550" y="120" width="150" height="62" rx="10" fill="#FAEEDA" stroke="#854F0B" stroke-width="1.5"/>
+  <text x="625" y="145" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="16" font-weight="600" fill="#633806">阻塞</text>
+  <text x="625" y="166" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="12" fill="#854F0B">Blocked</text>
+
+  <path d="M212 138 L303 138" fill="none" stroke="#185FA5" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="258" y="130" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="12" fill="#185FA5">进程调度</text>
+
+  <path d="M303 166 L212 166" fill="none" stroke="#185FA5" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="258" y="188" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="12" fill="#185FA5">时间片到 / 被抢占</text>
+
+  <path d="M457 138 L548 138" fill="none" stroke="#854F0B" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="503" y="130" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="12" fill="#854F0B">等待 I/O / 事件</text>
+
+  <path d="M548 166 L457 166" fill="none" stroke="#854F0B" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="503" y="188" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="12" fill="#854F0B">I/O 完成 / 事件到达</text>
+
+  <path d="M625 184 Q625 265 135 265 Q62 265 62 184" fill="none" stroke="#7F77DD" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#a)"/>
+  <text x="380" y="255" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="12" fill="#534AB7">阻塞 → 就绪：资源满足后进入就绪队列等待再次调度（不直接进入运行）</text>
+
+  <text x="380" y="308" text-anchor="middle" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="12" fill="#5F5E5A">注意：阻塞态不能直接转为运行态，必须先进就绪队列</text>
+</svg>
